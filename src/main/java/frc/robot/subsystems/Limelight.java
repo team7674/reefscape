@@ -19,6 +19,8 @@ import frc.robot.util.MovingAverage;
 public class Limelight extends SubsystemBase {
 
     //initialize everything
+    Pose2d limelightPos;
+
     private NetworkTable limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
 
     CommandSwerveDrivetrain drive;
@@ -71,6 +73,9 @@ public class Limelight extends SubsystemBase {
     @Override
     public void periodic() {
 
+        Pose2d drivePos = drive.getPose2d();
+        this.limelightPos = new Pose2d(botpose_fieldspace[0], botpose_fieldspace[1], drivePos.getRotation());
+
         id = (int)limelightTable.getEntry("tid").getDouble(0.0); //grabs limelight ID
         targetpose_botspace = correctRobotSpaceAxis(limelightTable.getEntry("targetpose_robotspace").getDoubleArray(new double[6])); //grabs targetspace
         botpose_targetspace = limelightTable.getEntry("botpose_targetspace").getDoubleArray(new double[6]); //grabs currentspace
@@ -95,12 +100,10 @@ public class Limelight extends SubsystemBase {
             smoothedPosition[i] = positionSmoother[i].getAverage(35);
         }
 
-        Pose2d pos = drive.getPose2d();
-        //double angleToSpeaker = Math.atan2(SPEAKER.getY() - pos.getY(), SPEAKER.getX() - pos.getX());
+        SmartDashboard.putNumber("realAngle", drivePos.getRotation().getDegrees());
+    }
 
-        SmartDashboard.putNumber("realAngle", pos.getRotation().getDegrees());
-        //SmartDashboard.putNumber("speakerDist", DriveCommands.getSpeakerDist(drive));
-        //SmartDashboard.putNumber("speakerAngle", angleToSpeaker * 180 / Math.PI);
-        //SmartDashboard.putNumber("angleError", pos.getRotation().getDegrees() - angleToSpeaker * 180 / Math.PI); 
+    public Pose2d getLimelightPose() {
+        return limelightPos;
     }
 }
