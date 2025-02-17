@@ -20,9 +20,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
-import frc.robot.subsystems.drive.DriveCommands;
 import frc.robot.subsystems.drive.Telemetry;
 import frc.robot.util.StaticUtil;
+import pabeles.concurrency.IntOperatorTask.Max;
 import edu.wpi.first.wpilibj.Timer;
 
 public class RobotContainer {
@@ -78,9 +78,6 @@ public class RobotContainer {
         //resets odometry with button press
         joystick.start().and(joystick.back()).whileTrue(Commands.runOnce(() -> 
             drivetrain.addVisionMeasurement(limelight.getLimelightPose(), StaticUtil.getCurrentRioTimestamp())));
-
-        //follow tag
-        joystick.rightBumper().whileTrue(DriveCommands.allignTag(0, 0, drivetrain, limelight, drive));
 
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> 

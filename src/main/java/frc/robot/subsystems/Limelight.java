@@ -54,19 +54,19 @@ public class Limelight extends SubsystemBase {
         return output;
     }
 
-    public double[] getTagPos(){
+    public double[] getTagPos() {
         return targetpose_botspace;
     }
-    
-    public double[] getBotPos_TagSpace(){
+
+    public double[] getBotPos_TagSpace() {
         return botpose_targetspace;
     }
     
-    public double[] getBotPos(){
+    public double[] getBotPos() {
         return botpose_fieldspace;
     }
     
-    public int getID(){
+    public int getID() {
         return id;
     }
 
