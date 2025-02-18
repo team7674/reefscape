@@ -10,6 +10,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -35,6 +36,11 @@ public class PhotonVisionClient implements VisionClient {
             bestTarget.getBestCameraToTarget(),
             StaticUtil.getTagFieldLayoutAM().getTagPose(bestTarget.getFiducialId()).get(),
             cameraToRobot);
+    }
+
+    public Pose2d estimatePose2d() {
+        Pose3d p3d = estimatePose3d();
+        return p3d.toPose2d();
     }
 
     public Rotation2d getYawToTag() {

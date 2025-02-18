@@ -21,11 +21,15 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.Telemetry;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.StaticUtil;
 import pabeles.concurrency.IntOperatorTask.Max;
 import edu.wpi.first.wpilibj.Timer;
 
 public class RobotContainer {
+
+    private Vision vision = new Vision()
+        .withPhotonClient("photonvision");
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity

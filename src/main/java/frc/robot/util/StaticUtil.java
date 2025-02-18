@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.io.IOException;

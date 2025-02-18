@@ -32,8 +32,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    for (int port = 5800; port <= 5809; port++)
-      PortForwarder.add(port, "limelight.local", port);
+    for (int port = 5700; port <= 5900; port++)
+      PortForwarder.add(port, "vision.local", port);
   }
 
   @Override
