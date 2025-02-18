@@ -38,7 +38,7 @@ public class PhotonVisionClient implements VisionClient {
     }
 
     public Rotation2d getYawToTag() {
-        return PhotonUtils.getYawToPose(, )
+        return null;
     }
 
     private List<PhotonTrackedTarget> targets;

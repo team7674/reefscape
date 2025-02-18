@@ -1,5 +1,7 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import java.io.IOException;
 
 import edu.wpi.first.apriltag.AprilTag;
@@ -16,4 +18,6 @@ public class StaticUtil {
     public static AprilTagFieldLayout getTagFieldLayoutAM() {
         return AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     }
+
+    public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 }
