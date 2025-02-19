@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
@@ -28,8 +28,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class RobotContainer {
 
-    private Vision vision = new Vision()
-        .withPhotonClient("photonvision");
+    private Vision vision = new Vision("front_camera");
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -86,6 +85,8 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> 
             drivetrain.seedFieldCentric()));
+
+        joystick.rightBumper().whileTrue(DriveCommands.alignToTag(1, drivetrain, vision));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

@@ -26,7 +26,6 @@ public class PhotonVisionClient implements VisionClient {
         result = camera.getLatestResult();
 
         if(result.hasTargets()) {
-            targets = result.getTargets();
             bestTarget = result.getBestTarget();
         }
     }
@@ -48,9 +47,9 @@ public class PhotonVisionClient implements VisionClient {
     }
 
     private List<PhotonTrackedTarget> targets;
-    private PhotonTrackedTarget bestTarget;
-    private boolean hasTargets;
-    private PhotonPipelineResult result;
+    private PhotonTrackedTarget bestTarget = new PhotonTrackedTarget();
+    private boolean hasTargets = false;
+    private PhotonPipelineResult result = new PhotonPipelineResult();
 
     private PhotonCamera camera;
 

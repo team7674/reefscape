@@ -3,7 +3,10 @@ package frc.robot.util;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -16,8 +19,14 @@ public class StaticUtil {
         return Timer.getTimestamp();
     }
 
+    public static AprilTagFieldLayout layout;
+
+    public static void staticInit() {
+        layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    }
+
     public static AprilTagFieldLayout getTagFieldLayoutAM() {
-        return AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        return layout;
     }
 
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);

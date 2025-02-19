@@ -8,11 +8,12 @@ import frc.robot.subsystems.vision.util.VisionUtil;
 
 public class Vision extends SubsystemBase {
 
-    List<PhotonVisionClient> photons;
-    List<Pose2d> lastPoses2d;
+    PhotonVisionClient photon;
+    Pose2d lastPose2d;
 
-    public Vision() {
-        
+    public Vision(String photonkey) {
+        photon = new PhotonVisionClient(photonkey);
+        lastPose2d = new Pose2d();
     }
 
     @Override
@@ -21,9 +22,7 @@ public class Vision extends SubsystemBase {
     }
 
     public void update() {
-        for (PhotonVisionClient photonCam : photons) {
-            photonCam.update();
-        }
+        photon.update();
     }
 
     /**
@@ -32,17 +31,6 @@ public class Vision extends SubsystemBase {
      * @return the Filtered Pose2D of the robot
      */
     public Pose2d getPose2d() {
-        lastPoses2d.clear();
-
-        for ( PhotonVisionClient photon : photons ) {
-            lastPoses2d.add(photon.estimatePose2d());
-        }
-
-        return VisionUtil.averagePoses2D(lastPoses2d);
-    }
-
-    public Vision withPhotonClient(String key) {
-        this.photons.add(new PhotonVisionClient(key));
-        return this;
+        return photon.estimatePose2d();
     }
 }

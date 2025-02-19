@@ -5,11 +5,13 @@
 package frc.robot;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.util.StaticUtil;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -34,6 +36,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     for (int port = 5700; port <= 5900; port++)
       PortForwarder.add(port, "vision.local", port);
+
+    StaticUtil.staticInit();
   }
 
   @Override

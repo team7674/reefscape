@@ -2,13 +2,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 
+import static edu.wpi.first.units.Units.Rotation;
+
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
+import java.util.stream.Stream;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -21,6 +27,8 @@ public final class DriveCommands {
     // Make class uninstantiable
     private DriveCommands() {}
 
+    private static final double THROTTLE_GOV = 2;
+
     public static Command alignToTag(
         int ID,
         CommandSwerveDrivetrain drive,
@@ -28,15 +36,27 @@ public final class DriveCommands {
     ) {
         return Commands.run(
             () -> {
+                vision.update();
                 Pose2d pose = vision.getPose2d();
+                Pose2d tagPose = new Pose2d();
 
                 Optional<Pose3d> tagPoseOption = StaticUtil.getTagFieldLayoutAM().getTagPose(ID);
-                
-                Pose2d tagPose = ( tagPoseOption.isPresent() ) ? tagPoseOption.get().toPose2d() : new Pose2d();
+                    
+                if ( tagPoseOption.isPresent() ) {
+                    tagPose = tagPoseOption.get().toPose2d();
+                } else {
+                    tagPose = new Pose2d();
+                }
 
-                Twist2d relativeTrans = pose.log(tagPose);
+                Rotation2d desiredHeading = tagPose.getTranslation().minus(pose.getTranslation()).getAngle();
 
-                drive.applyRequest(() -> new SwerveRequest.FieldCentric())
+                SwerveRequest.FieldCentricFacingAngle req = new SwerveRequest.FieldCentricFacingAngle()
+                .withTargetDirection(desiredHeading);
+
+                req.HeadingController.setPID(0.8, 0.0025, 0.0);
+                req.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+
+                drive.applyRequest(() -> req);
             }, 
             drive, vision);
     }
@@ -50,8 +70,8 @@ public final class DriveCommands {
     ) {
         return Commands.run(() -> {
             drive.applyRequest(() -> new SwerveRequest.FieldCentric()
-                    .withVelocityX(strafeSupplier.getAsDouble())
-                    .withVelocityY(forwardSupplier.getAsDouble())
+                    .withVelocityX(strafeSupplier.getAsDouble() * (throttleSupplier.getAsDouble() * THROTTLE_GOV))
+                    .withVelocityY(forwardSupplier.getAsDouble() * (throttleSupplier.getAsDouble() * THROTTLE_GOV))
                     .withRotationalRate(rotSupplier.getAsDouble() * StaticUtil.MaxAngularRate));
         }, drive);
     }
