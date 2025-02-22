@@ -30,8 +30,9 @@ public class Vision extends SubsystemBase {
      * averages the Pose2D output of all compliant cameras
      * 
      * @return the Filtered Pose2D of the robot
-     */
+     *
     public Pose2d getPose2d(CommandSwerveDrivetrain drive) {
         return photon.estimateBotPose2d(drive);
     }
+        */
 }

@@ -4,19 +4,25 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 import static edu.wpi.first.units.Units.Rotation;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.stream.Stream;
 
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
@@ -29,6 +35,23 @@ public final class DriveCommands {
 
     private static final double THROTTLE_GOV = 2;
 
+    public static Command alignToAngle(double angle, CommandSwerveDrivetrain drive) {
+
+        Rotation2d target = Rotation2d.fromDegrees(angle); //converts our double angle to a rotation2d
+
+        double PIDerror = drive.getPigeon2().getYaw().getValueAsDouble() - angle; //gets our error of the yaw from the pigeon minus the target angle
+
+        System.out.println(PIDerror);
+
+        SwerveRequest.FieldCentricFacingAngle req = new SwerveRequest.FieldCentricFacingAngle() //creates the request
+            .withTargetDirection(target);
+
+        req.HeadingController.enableContinuousInput(-Math.PI, Math.PI); //set limits on the pid for a circle
+        req.HeadingController.setPID(0.4, 0.0025, 0.0); //sets up our pid with existing request
+
+        return drive.applyRequest(() -> req);
+    }
+
     public static Command alignToTag(
         int ID,
         CommandSwerveDrivetrain drive,
@@ -36,35 +59,29 @@ public final class DriveCommands {
     ) {
         return Commands.run(
             () -> {
-                vision.update();
-                Pose2d pose = vision.getPose2d(drive);
-                Pose2d tagPose = new Pose2d();
-
-                //Optional<Pose3d> tagPoseOption = StaticUtil.getTagFieldLayoutAM().getTagPose(ID);
-
-                //Pose3d tagPose3d = vision.get
-                
-                //System.out.println(tagPoseOption.isPresent());
+                //Pose2d pose = vision.getPose2d(drive);
 
                 /*
-                if ( tagPoseOption.isPresent() ) {
-                    tagPose = tagPoseOption.get().toPose2d();
-                } else {
-                    tagPose = new Pose2d();
+                try { //may have a bad tagpose or no tagpose, this will grab either the valid tag or the last tag that exists on the field
+                    Pose3d tagPose3d = StaticUtil.getTagFieldLayoutAM().getTags().get(ID).pose; //grabs list of tags, pulls the ID we have, then gets its pose3d
+                } catch (NullPointerException e) { //handles exception
+                    List<AprilTag> tags = StaticUtil.getTagFieldLayoutAM().getTags(); //grabs all the tags
+                    Pose3d tagPose3d = tags.get(tags.size()-1).pose; //sets heading of specifically the last tag, aka list size minus 1, aka 22 (this could just be the number 22 but doing it like this makes it work for different list sizes)
+                    System.out.println(e); //prints error
                 }
-                    */
 
-                
+                */
 
-                Rotation2d desiredHeading = tagPose.getTranslation().minus(pose.getTranslation()).getAngle();
+                Rotation2d somepointBS = Rotation2d.fromDegrees(90);
 
                 SwerveRequest.FieldCentricFacingAngle req = new SwerveRequest.FieldCentricFacingAngle()
-                .withTargetDirection(desiredHeading);
+                .withTargetDirection(somepointBS);
+
+                System.out.println("we're trying to do something");
 
                 req.HeadingController.setPID(0.8, 0.0025, 0.0);
-                req.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
 
-                drive.applyRequest(() -> req);
+                //Commands.run(drive.applyRequest(() -> req), drive);
             }, 
             drive, vision);
     }

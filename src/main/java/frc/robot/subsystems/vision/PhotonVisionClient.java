@@ -34,6 +34,7 @@ public class PhotonVisionClient implements VisionClient {
         }
     }
 
+    /*
     
     public Pose2d estimateBotPose2d(CommandSwerveDrivetrain drive) { //create pose2d of estimated bot position based off of tag
 
@@ -57,6 +58,8 @@ public class PhotonVisionClient implements VisionClient {
             return null;
         }
     }
+
+    */
         
 
     public Rotation2d getYawToTag() {

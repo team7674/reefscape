@@ -86,7 +86,7 @@ public class RobotContainer {
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> 
             drivetrain.seedFieldCentric()));
 
-        joystick.rightBumper().whileTrue(DriveCommands.alignToTag(1, drivetrain, vision));
+        joystick.rightBumper().whileTrue(DriveCommands.alignToAngle(45, drivetrain));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
