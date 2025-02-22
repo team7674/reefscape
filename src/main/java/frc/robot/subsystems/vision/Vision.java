@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.util.VisionUtil;
 
 public class Vision extends SubsystemBase {
@@ -30,7 +31,7 @@ public class Vision extends SubsystemBase {
      * 
      * @return the Filtered Pose2D of the robot
      */
-    public Pose2d getPose2d() {
-        return photon.estimatePose2d();
+    public Pose2d getPose2d(CommandSwerveDrivetrain drive) {
+        return photon.estimateBotPose2d(drive);
     }
 }

@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class RobotContainer {
 
-    private Vision vision = new Vision("front_camera");
+    private Vision vision = new Vision("upper_camera");
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity

@@ -37,16 +37,24 @@ public final class DriveCommands {
         return Commands.run(
             () -> {
                 vision.update();
-                Pose2d pose = vision.getPose2d();
+                Pose2d pose = vision.getPose2d(drive);
                 Pose2d tagPose = new Pose2d();
 
-                Optional<Pose3d> tagPoseOption = StaticUtil.getTagFieldLayoutAM().getTagPose(ID);
-                    
+                //Optional<Pose3d> tagPoseOption = StaticUtil.getTagFieldLayoutAM().getTagPose(ID);
+
+                //Pose3d tagPose3d = vision.get
+                
+                //System.out.println(tagPoseOption.isPresent());
+
+                /*
                 if ( tagPoseOption.isPresent() ) {
                     tagPose = tagPoseOption.get().toPose2d();
                 } else {
                     tagPose = new Pose2d();
                 }
+                    */
+
+                
 
                 Rotation2d desiredHeading = tagPose.getTranslation().minus(pose.getTranslation()).getAngle();
 
