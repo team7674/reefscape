@@ -85,8 +85,12 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> 
             drivetrain.seedFieldCentric()));
-
-        joystick.rightBumper().whileTrue(DriveCommands.alignToAngle(45, drivetrain));
+        
+        Rotation2d target = Rotation2d.fromDegrees(90);
+        joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target)));
+            
+            
+            //drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

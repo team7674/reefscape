@@ -15,6 +15,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,6 +31,9 @@ import frc.robot.util.StaticUtil;
 
 // Make class inextendable
 public final class DriveCommands {
+
+    static double targetAngle;
+
     // Make class uninstantiable
     private DriveCommands() {}
 
@@ -39,17 +43,11 @@ public final class DriveCommands {
 
         Rotation2d target = Rotation2d.fromDegrees(angle); //converts our double angle to a rotation2d
 
-        double PIDerror = drive.getPigeon2().getYaw().getValueAsDouble() - angle; //gets our error of the yaw from the pigeon minus the target angle
-
-        System.out.println(PIDerror);
-
-        SwerveRequest.FieldCentricFacingAngle req = new SwerveRequest.FieldCentricFacingAngle() //creates the request
-            .withTargetDirection(target);
-
-        req.HeadingController.enableContinuousInput(-Math.PI, Math.PI); //set limits on the pid for a circle
-        req.HeadingController.setPID(0.4, 0.0025, 0.0); //sets up our pid with existing request
-
-        return drive.applyRequest(() -> req);
+        return Commands.run(() -> {
+            drive.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target));
+            System.out.println("working? " + target);
+        }, drive);
+        //return //slaps the target into a swerverequest
     }
 
     public static Command alignToTag(
