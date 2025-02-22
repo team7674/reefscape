@@ -1,18 +1,22 @@
-/*
-
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.TalonFX;
 
-public class Arm {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class Arm extends SubsystemBase {
     private final TalonFX liftDriver 
         = new TalonFX(0, "rio");
+
     private final Slot0Configs liftConf
         = new Slot0Configs()
-            .withkP(0)
-            .withkI(0)
-            .withkD(0);
-            
-}
+            .withKP(0)
+            .withKI(0)
+            .withKD(0);
 
-*/
+    @Override
+    public void periodic() {
+        
+    }
+}
