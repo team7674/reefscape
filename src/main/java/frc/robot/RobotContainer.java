@@ -9,22 +9,18 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.DriveCommands;
+
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.Telemetry;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.StaticUtil;
-import pabeles.concurrency.IntOperatorTask.Max;
-import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Coral;
@@ -65,19 +61,26 @@ public class RobotContainer {
         // and Y is defined as to the left according to WPILib convention.
 
         // FIXME: UNCOMMENT THIS WHEN WE ARE DONE DEBUGGING
-        /*drivetrain.setDefaultCommand(
+        /*
+        
+        drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
                 drive.withVelocityX(MathUtil.applyDeadband(joystick.getLeftY(), 0.15) * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(MathUtil.applyDeadband(joystick.getLeftX(), 0.15) * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-MathUtil.applyDeadband(joystick.getRightX(), 0.15) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                  +
+                  
+                  
+                  
+                  .withRotationalRate(-MathUtil.applyDeadband(joystick.getRightX(), 0.15) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
-        );*/
+        );
+        
+        */
 
-        joystick.a().whileTrue(Commands.run(() -> arm.runTiltMotor(joystick.getLeftX())));
-        joystick.b().whileTrue(Commands.run(() -> arm.runArmDriveMotor(joystick.getLeftX())));
-        joystick.x().whileTrue(Commands.run(() -> arm.runElevatorWinch(joystick.getLeftX())));
-        joystick.y().whileTrue(Commands.run(() -> arm.runSwingArmMotor(joystick.getLeftX())));
+        //joystick.a().whileTrue(Commands.run(() -> arm.runTiltMotor(joystick.getLeftX())));
+        joystick.a().whileTrue(Commands.run(() -> arm.runWristMotor(joystick.getLeftX())));
+        //joystick.a().whileTrue(Commands.run(() -> arm.armUp()));
         joystick.back().onTrue(Commands.run(() -> arm.brake()));
 
         joystick.povUp().whileTrue(Commands.run(() -> arm.open()));
