@@ -78,9 +78,11 @@ public class RobotContainer {
         
         */
 
-        //joystick.a().whileTrue(Commands.run(() -> arm.runTiltMotor(joystick.getLeftX())));
-        joystick.a().whileTrue(Commands.run(() -> arm.runWristMotor(joystick.getLeftX())));
-        //joystick.a().whileTrue(Commands.run(() -> arm.armUp()));
+        joystick.b().whileTrue(Commands.run(() -> arm.runTiltMotor(joystick.getLeftX())));
+        joystick.y().whileTrue(Commands.run(() -> arm.runWristMotor(joystick.getLeftX())));
+        joystick.x().whileTrue(Commands.run(() -> arm.runCoralIntakeMotor(joystick.getLeftX())));
+        joystick.a().whileTrue(Commands.run(() -> arm.winchUp(3)));
+
         joystick.back().onTrue(Commands.run(() -> arm.brake()));
 
         joystick.povUp().whileTrue(Commands.run(() -> arm.open()));

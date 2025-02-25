@@ -1,37 +1,38 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.CANcoder;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import frc.robot.util.MMTalon;
 import frc.robot.util.PIDTalon;
 
 public class Arm extends SubsystemBase {
     private final PIDTalon tiltMotor = new PIDTalon(17, "rio");
-    private final PIDTalon elevatorWinch = new PIDTalon(15, "rio");
+    private final MMTalon elevatorWinch = new MMTalon(15, "rio");
     private final PIDTalon armDriveMotor = new PIDTalon(16, "rio");
     private final PIDTalon swingArmMotor = new PIDTalon(20, "rio");
-    private final PIDTalon wristMotor = new PIDTalon(21, "rio");
+    private final PIDTalon coralIntakeMotor = new PIDTalon(22, "rio");
+    private final MMTalon wristMotor = new MMTalon(21, "rio");
 
     private final Servo swingArmLockServo = new Servo(1);
 
     private final CANcoder armEncoder = new CANcoder(18,"rio");
 
     public void robotInit() {
-        var pidConfig = new Slot0Configs(); //create new config object
+        System.out.println("litteraly anything.");
 
-        //set the values
-        pidConfig.kP = 1;
-        pidConfig.kI = 0;
-        pidConfig.kD = 0.1;
+        wristMotor.setPID(1, 0, 0); //configure our pid for wrist motor
+        wristMotor.setMotionMagicProfile(50, 3, 0);
 
-        armDriveMotor.getConfigurator().apply(pidConfig); //apply the pid configuration
+        elevatorWinch.setPID(1, 0, 0);
+        elevatorWinch.setMotionMagicProfile(50, 3, 0);
     }
 
     @Override
     public void periodic() {
-        System.out.println(armEncoder.getPosition() + ", " + armDriveMotor.getPosition());
+        //System.out.println(armEncoder.getPosition() + ", " + armDriveMotor.getPosition());
     }
 
     public void brake() {
@@ -41,11 +42,20 @@ public class Arm extends SubsystemBase {
         swingArmMotor.set(0);
     }
 
-    public void armUp() {
-        armDriveMotor.setPosition(-5);
+    public void wristUp(double pos) {
+        wristMotor.run(pos);
+        System.out.println("trying to move part 1");
+    }
+
+    public void winchUp(double pos) {
+        elevatorWinch.run(pos);
     }
 
     // -=-=-=-=-=-=-=-= DEBUG FUNCTIONS =-=-=-=-=-=-=-=-
+
+    public void runCoralIntakeMotor(double by) {
+        coralIntakeMotor.set(by);
+    }
 
     public void runWristMotor(double by) {
         wristMotor.set(by);
