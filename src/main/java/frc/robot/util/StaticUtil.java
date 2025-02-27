@@ -23,4 +23,14 @@ public class StaticUtil {
     }
 
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+
+    public static double RotationsFromDegrees(double deg) {
+        return (deg / 360.00);
+    }
+
+    public static double clamp(double x, double high, double low) {
+        var out = (x > high || x < low) ? (x > high) ? high : low : x;
+        System.out.println("Clamped: " + out);
+        return out;
+    }
 }

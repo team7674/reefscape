@@ -17,20 +17,25 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.appendage.ElevatorWinch;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.Telemetry;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.StaticUtil;
 
-import frc.robot.subsystems.Arm;
+//import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Coral;
+
 
 public class RobotContainer {
 
     private Vision vision = new Vision("upper_camera");
 
-    private Arm arm = new Arm();
+    //private ElevatorWinch elevatorWinch = new ElevatorWinch();
     private Coral coral = new Coral();
+
+    private Arm arm = new Arm();
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -78,16 +83,19 @@ public class RobotContainer {
         
         */
 
-        joystick.b().whileTrue(Commands.run(() -> arm.runTiltMotor(joystick.getLeftX())));
-        joystick.y().whileTrue(Commands.run(() -> arm.runWristMotor(joystick.getLeftX())));
-        joystick.x().whileTrue(Commands.run(() -> arm.runCoralIntakeMotor(joystick.getLeftX())));
-        joystick.a().whileTrue(Commands.run(() -> arm.winchUp(3)));
+        joystick.b().whileTrue(Commands.run(() -> coral.close()));
+        joystick.a().whileTrue(Commands.run(() -> coral.open()));
 
-        joystick.back().onTrue(Commands.run(() -> arm.brake()));
+        //joystick.a().whileTrue(Commands.run(() -> arm.runWristTo((-20.00 / 360.00))));
+        //joystick.b().whileTrue(Commands.run(() -> arm.runWristTo((0.00 / 360.00))));
+        //joystick.x().whileTrue(Commands.run(() -> arm.runWristTo((40.00 / 360.00))));
 
-        joystick.povUp().whileTrue(Commands.run(() -> arm.open()));
-        joystick.povRight().whileTrue(Commands.run(() -> arm.half()));
-        joystick.povDown().whileTrue(Commands.run(() -> arm.close()));
+
+        //joystick.x().whileTrue(Commands.run(() -> arm.driveWrist(-joystick.getLeftY())));
+        //joystick.b().whileTrue(Commands.run(() -> elevatorWinch.setPosition(20)));
+        //joystick.x().whileTrue(Commands.run(() -> elevatorWinch.setPosition(-20)));
+        //joystick.a().whileTrue(Commands.run(() -> elevatorWinch.setPosition(-20)));
+        //joystick.y().whileTrue(Commands.run(() -> elevatorWinch.setEncoderToZero()));
 
         //joystick.b().whileTrue(drivetrain.applyRequest(() ->
         //    point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
@@ -105,13 +113,12 @@ public class RobotContainer {
             drivetrain.addVisionMeasurement(limelight.getLimelightPose(), StaticUtil.getCurrentRioTimestamp())));
 
         // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> 
-            drivetrain.seedFieldCentric()));
+        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         Rotation2d target = Rotation2d.fromDegrees(90);
         joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target)));
             
-            
+
             //drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target));
 
         drivetrain.registerTelemetry(logger::telemeterize);

@@ -18,7 +18,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.util.VisionUtil;
-import frc.robot.util.StaticUtil;
+//import frc.robot.util.StaticUtil;
 
 public class PhotonVisionClient implements VisionClient {
     public PhotonVisionClient(String key) {

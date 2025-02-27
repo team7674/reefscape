@@ -1,20 +1,14 @@
 package frc.robot.subsystems;
 
-import java.nio.ByteBuffer;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructTopic;
-import edu.wpi.first.util.struct.Struct;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.util.MovingAverage;
-
-//were trying to use last years code/basing off of last years code to work on the setpoint stuff
-//continue working on vision but dont touch limelight. this is temporary
 
 public class Limelight extends SubsystemBase {
 

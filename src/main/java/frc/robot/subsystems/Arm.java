@@ -2,90 +2,73 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 
-import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.util.FusedMMTalon;
 import frc.robot.util.MMTalon;
-import frc.robot.util.PIDTalon;
+import frc.robot.util.StaticUtil;
 
 public class Arm extends SubsystemBase {
-    private final PIDTalon tiltMotor = new PIDTalon(17, "rio");
-    private final MMTalon elevatorWinch = new MMTalon(15, "rio");
-    private final PIDTalon armDriveMotor = new PIDTalon(16, "rio");
-    private final PIDTalon swingArmMotor = new PIDTalon(20, "rio");
-    private final PIDTalon coralIntakeMotor = new PIDTalon(22, "rio");
-    private final MMTalon wristMotor = new MMTalon(21, "rio");
+    MMTalon winchMotor = new MMTalon(15, "rio");
+    
+    private final double wristEncoderOff = 0;
+    CANcoder wristEncoder = new CANcoder(19, "rio");
+    FusedMMTalon wristMotor = new FusedMMTalon(21, "rio", wristEncoder);
 
-    private final Servo swingArmLockServo = new Servo(1);
+    public Arm() {
+        winchMotor.setEncoderToZero();
 
-    private final CANcoder armEncoder = new CANcoder(18,"rio");
-
-    public void robotInit() {
-        System.out.println("litteraly anything.");
-
-        wristMotor.setPID(1, 0, 0); //configure our pid for wrist motor
-        wristMotor.setMotionMagicProfile(50, 3, 0);
-
-        elevatorWinch.setPID(1, 0, 0);
-        elevatorWinch.setMotionMagicProfile(50, 3, 0);
+        wristMotor.setMotorToZero();
+        wristMotor.setEncoderToMotorRat(196.36363636363636);
+        wristMotor.correctFusedOffset();
     }
 
     @Override
     public void periodic() {
-        //System.out.println(armEncoder.getPosition() + ", " + armDriveMotor.getPosition());
+        //System.out.println("-=-=-=-=-=-");
+        //System.out.println(wristEncoder.getPosition().getValueAsDouble() * 360);
+        //System.out.println(wristMotor.getPos());
+        //System.out.println(wristMotor.getError());
+        //System.out.println("-=-=-=-=-=-");
+    }
+    
+    /**
+     * Debug function to run the elevator to any position
+     * @param at
+     */
+    public void setWinch(double at) {
+        winchMotor.setPositionMM(at);
+    }
+    
+    /**
+     * Debug function to run the wrist to any position
+     * @param at
+     */
+    public void setWrist(double at) {
+        wristMotor.setPositionMM(at);
     }
 
-    public void brake() {
-        tiltMotor.set(0);
-        elevatorWinch.set(0);
-        armDriveMotor.set(0);
-        swingArmMotor.set(0);
+    public void runWristTo(double at) {
+        System.out.println("arm.runWristTo(" + at + ")");
+        wristMotor.runToPos(StaticUtil.clamp(at , (40 / 360.00), (-20 / 360.00)));
     }
 
-    public void wristUp(double pos) {
-        wristMotor.run(pos);
-        System.out.println("trying to move part 1");
+    public void driveWrist(double speed) {
+        wristMotor.set(speed);
     }
 
-    public void winchUp(double pos) {
-        elevatorWinch.run(pos);
+    public void zeroWrist() {
+        var pos = wristEncoder.getPosition().getValueAsDouble();
+        var target = 0;
+        var finTgt = pos * 196.36363636363636;
+        System.out.println(finTgt);
+        setWrist(finTgt);
     }
 
-    // -=-=-=-=-=-=-=-= DEBUG FUNCTIONS =-=-=-=-=-=-=-=-
-
-    public void runCoralIntakeMotor(double by) {
-        coralIntakeMotor.set(by);
-    }
-
-    public void runWristMotor(double by) {
-        wristMotor.set(by);
-    }
-
-    public void runTiltMotor(double by) {
-        tiltMotor.set(by);
-    }
-
-    public void runElevatorWinch(double by) {
-        elevatorWinch.set(by);
-    }
-
-    public void runArmDriveMotor(double by) {
-        armDriveMotor.set(by);
-    }
-
-    public void runSwingArmMotor(double by) {
-        swingArmMotor.set(by);
-    }
-
-    public void open() {
-        swingArmLockServo.set(1);
-    }
-
-    public void half() {
-        swingArmLockServo.set(.5);
-    }
-
-    public void close() {
-        swingArmLockServo.set(0);
+    /**
+     * @return current position of the wrist
+     */
+    public double readWristPosition() {
+        return wristMotor.fusedEncodePos();
     }
 }
