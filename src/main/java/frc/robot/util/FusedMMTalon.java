@@ -1,35 +1,22 @@
 package frc.robot.util;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Second;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotionMagicConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 /**
  * Motion magic talon with fused encoder
  */
 public class FusedMMTalon extends MMTalon {
     private CANcoder encoder; // < Encoder
+    public CANcoderConfiguration cc_cfg = new CANcoderConfiguration();
 
-    private double encoderToMotor = 0; // < Amount of motor rotations to make 1 encoder rotation 
+    private double gearing = 1; // < Amount of motor rotations to make 1 encoder rotation 
 
-    public void setEncoderToMotorRat(double ratio) {
-        encoderToMotor = ratio;
-    }
-
+    // -======== Configurators and constructors ========-
+    
     /**
      * CONSTRUCTOR
      * @param myID motor ID
@@ -41,10 +28,50 @@ public class FusedMMTalon extends MMTalon {
         
         this.encoder = encoder;
 
-        CANcoderConfiguration cc_cfg = new CANcoderConfiguration();
-        cc_cfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        cc_cfg.MagnetSensor.MagnetOffset = -0.143799;
+        this.cc_cfg.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        this.cc_cfg.MagnetSensor.MagnetOffset = 0;
         this.encoder.getConfigurator().apply(cc_cfg);
+    }
+
+    /**
+     * Set the magnet offset to where your assembly is at it's zero
+     * @param off magnet offset
+     * @return itself
+     */
+    public FusedMMTalon withMagnetOffset(double off) {
+        this.cc_cfg.MagnetSensor.MagnetOffset = off;
+        this.encoder.getConfigurator().apply(this.cc_cfg);
+        return this;
+    }
+
+    /**
+     * Sets the direction of the sensor 
+     * (because trust me it is easier than trying to do it with the motor)
+     * @param d Direction
+     * @return itself
+     */
+    public FusedMMTalon withDirection(SensorDirectionValue d) {
+        this.cc_cfg.MagnetSensor.SensorDirection = d;
+        this.encoder.getConfigurator().apply(this.cc_cfg);
+        return this;
+    }
+
+    /**
+     * Sets the mechanism gearing
+     * @param gearing the amount of turns the motor must make to do 1 revolution of the mechanism
+     * @return itself
+     */
+    public FusedMMTalon withGearing(double gearing) {
+        this.gearing = gearing;
+        return this;
+    }
+
+    // -================================================-
+
+    // -======== Motor related ========-
+
+    public void setGearing(double gearing) {
+        this.gearing = gearing;
     }
 
     /**
@@ -63,12 +90,34 @@ public class FusedMMTalon extends MMTalon {
     }
 
     /**
+     * Runs to a specified encoder position
+     */
+    public void runToPos(double at) {
+        super.setPositionMM((at) * gearing);
+    }
+
+    /**
+     * Corrects the motor's encoder offset based on the encoder
+     */
+    public void correctFusedOffset() {
+        super.setPosition(fusedEncodePos() * gearing);
+    }
+
+    // -===============================-
+
+    // -======== PID ========-
+
+    /**
      * Gets the current PID error
      * @return the current PID error
      */
     public double pidError() {
         return position() - currentSet;
     }
+
+    // -=====================-
+
+    // -======== Fused encoder ========-
 
     /**
      * Gets the position of the fused encoder
@@ -78,17 +127,5 @@ public class FusedMMTalon extends MMTalon {
         return encoder.getPosition().getValueAsDouble();
     }
 
-    /**
-     * Runs to a specified encoder position
-     */
-    public void runToPos(double at) {
-        System.out.println("FusedMMTalon.runToPos(" + at + ")");
-        System.out.println(at);
-        System.out.println(at * encoderToMotor);
-        super.setPositionMM((at) * encoderToMotor);
-    }
-
-    public void correctFusedOffset() {
-        super.setPosition(fusedEncodePos() * encoderToMotor);
-    }
+    // -===============================-
 }

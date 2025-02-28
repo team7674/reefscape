@@ -6,13 +6,17 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import javax.sql.rowset.JoinRowSet;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
@@ -36,6 +40,8 @@ public class RobotContainer {
     private Coral coral = new Coral();
 
     private Arm arm = new Arm();
+
+    private final Trigger coralTrigger = new Trigger(() -> coral.containsCoral);
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -83,8 +89,15 @@ public class RobotContainer {
         
         */
 
-        joystick.b().whileTrue(Commands.run(() -> coral.close()));
-        joystick.a().whileTrue(Commands.run(() -> coral.open()));
+        joystick.b().onTrue(StaticUtil.rumbleController(joystick, 0.5));
+        joystick.a().whileTrue(Commands.runOnce(() -> arm.setTilt(50)));
+        joystick.x().whileTrue(Commands.runOnce(() -> arm.tiltExtend()));
+        joystick.y().whileTrue(Commands.runEnd(() -> coral.output(), () -> coral.output()));
+        //joystick.x().whileTrue(Commands.runOnce(() -> coral.intake()));
+
+        coralTrigger.onChange(StaticUtil.rumbleController(joystick, 0.5));
+
+        joystick.rightBumper().whileTrue(Commands.run(() -> arm.runTilt(-joystick.getLeftY())));
 
         //joystick.a().whileTrue(Commands.run(() -> arm.runWristTo((-20.00 / 360.00))));
         //joystick.b().whileTrue(Commands.run(() -> arm.runWristTo((0.00 / 360.00))));
@@ -115,8 +128,8 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
-        Rotation2d target = Rotation2d.fromDegrees(90);
-        joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target)));
+        //Rotation2d target = Rotation2d.fromDegrees(90);
+        //joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target)));
             
 
             //drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target));
