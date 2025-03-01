@@ -46,4 +46,10 @@ public class StaticUtil {
             Commands.runOnce(() -> joystick.setRumble(RumbleType.kBothRumble, 0))
         );
     }
+
+    public static Command pulseController(CommandXboxController ctrl, double width, int length) {
+        boolean done = false;
+        int times = 0;
+        return null;
+    }
 }

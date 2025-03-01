@@ -1,6 +1,9 @@
 package frc.robot.util;
 
 
+import static edu.wpi.first.units.Units.Rotations;
+
+import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -93,6 +96,7 @@ public class FusedMMTalon extends MMTalon {
      * Runs to a specified encoder position
      */
     public void runToPos(double at) {
+        System.out.println(at * gearing);
         super.setPositionMM((at) * gearing);
     }
 
@@ -124,7 +128,17 @@ public class FusedMMTalon extends MMTalon {
      * @return the position of the fused encoder
      */
     public double fusedEncodePos() {
-        return encoder.getPosition().getValueAsDouble();
+        return encoder.getAbsolutePosition().getValueAsDouble();
+    }
+
+    public void setMagnetOffset(double off) {
+        this.cc_cfg.MagnetSensor.MagnetOffset = off;
+        this.encoder.getConfigurator().apply(this.cc_cfg.MagnetSensor);
+    }
+
+    public void setDirection(SensorDirectionValue d) {
+        this.cc_cfg.MagnetSensor.SensorDirection = d;
+        this.encoder.getConfigurator().apply(this.cc_cfg.MagnetSensor);
     }
 
     // -===============================-
