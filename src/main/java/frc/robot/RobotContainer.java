@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -50,6 +51,7 @@ public class RobotContainer {
     private Arm arm = new Arm();
 
     private final Trigger coralTrigger = new Trigger(() -> coral.containsCoral);
+    private final Trigger enableTrigger = new Trigger(() -> DriverStation.isEnabled());
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -98,27 +100,37 @@ public class RobotContainer {
         
         */
 
-        operatorController.leftBumper().onTrue(Commands.runOnce(() -> manualMode = true));
-        operatorController.leftBumper().onFalse(Commands.runOnce(() -> manualMode = false));
+        driverController.leftBumper().onTrue(Commands.runOnce(() -> manualMode = true));
+        driverController.leftBumper().onFalse(Commands.runOnce(() -> manualMode = false));
 
         manualTrigger.onTrue(Commands.run(() -> {}));
         manualTrigger.whileTrue(Commands.run(() -> {
-            arm.setWinch(arm.getWinch() + (operatorController.getLeftX() *  20));
+            if (driverController.getLeftX() > 0.1 || driverController.getLeftX() < -0.1)
+                arm.driveArmPositional(driverController.getLeftX());
+
+            if (driverController.getRightX() > 0.1 || driverController.getRightX() < -0.1)
+                arm.driveWristPositional(driverController.getRightX());
         }));
 
         //driverController.b().onTrue(drivetrain.applyRequest(() -> brake));
         //driverController.x().whileTrue(Commands.run(() -> arm.runTilt(driverController.getLeftX())));
 
-        driverController.a().onTrue(Commands.runOnce(() -> arm.moveArmTo((-5.00 / 360.00))));
-        driverController.b().onTrue(Commands.runOnce(() -> arm.moveArmTo((-45.0 / 360.00))));
+        driverController.povDown().onTrue(ArmCommands.level1(arm));
+        driverController.povLeft().onTrue(ArmCommands.level2(arm));
+        driverController.povUp().onTrue(ArmCommands.level3(arm));
+        driverController.povRight().onTrue(ArmCommands.level4(arm));
+
+        driverController.a().onTrue(ArmCommands.travel(arm));
+        driverController.b().onTrue(ArmCommands.algaeLevel1(arm));
         driverController.x().onTrue(ArmCommands.intakeCoral(arm, coral));
+        driverController.y().onTrue(ArmCommands.algaeLevel2(arm));
 
         //driverController.y().whileTrue(Commands.runEnd(() -> coral.output(), () -> coral.output()));
         //joystick.x().whileTrue(Commands.runOnce(() -> coral.intake()));
 
         coralTrigger.onChange(StaticUtil.rumbleController(driverController, 0.5));
 
-        driverController.rightBumper().whileTrue(Commands.run(() -> arm.runTilt(-driverController.getLeftY())));
+        //driverController.rightBumper().onTrue(ArmCommands.travel(arm));
 
         //joystick.a().whileTrue(Commands.run(() -> arm.runWristTo((-20.00 / 360.00))));
         //joystick.b().whileTrue(Commands.run(() -> arm.runWristTo((0.00 / 360.00))));
@@ -147,7 +159,7 @@ public class RobotContainer {
             drivetrain.addVisionMeasurement(limelight.getLimelightPose(), StaticUtil.getCurrentRioTimestamp())));
 
         // reset the field-centric heading on left bumper press
-        driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        //driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         //Rotation2d target = Rotation2d.fromDegrees(90);
         //joystick.rightBumper().whileTrue(drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target)));
@@ -156,6 +168,8 @@ public class RobotContainer {
             //drivetrain.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        enableTrigger.onTrue(ArmCommands.travel(arm));
     }
 
     public Command getAutonomousCommand() {

@@ -44,9 +44,9 @@ public class MMTalon extends TalonFX {
         
 
         cfg.MotionMagic
-            .withMotionMagicCruiseVelocity(RotationsPerSecond.of(120))
-            .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(500))
-            .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(1500));
+            .withMotionMagicCruiseVelocity(RotationsPerSecond.of(60))
+            .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(120))
+            .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(1200));
 
         for (byte i = 0; i < 5; i++) {
             status = super.getConfigurator().apply(cfg);

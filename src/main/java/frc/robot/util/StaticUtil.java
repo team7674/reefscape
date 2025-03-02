@@ -34,7 +34,7 @@ public class StaticUtil {
     }
 
     public static double clamp(double x, double high, double low) {
-        var out = (x > high || x < low) ? (x > high) ? high : low : x;
+        double out = (x > high || x < low) ? (x > high) ? high : low : x;
         System.out.println("Clamped: " + out);
         return out;
     }

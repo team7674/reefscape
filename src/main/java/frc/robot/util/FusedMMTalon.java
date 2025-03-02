@@ -81,6 +81,7 @@ public class FusedMMTalon extends MMTalon {
      * sets the motor to zero
      */
     public void setMotorToZero() {
+        System.out.println("ZEROING MOTOR!");
         super.setEncoderToZero();
     }
 
@@ -104,6 +105,9 @@ public class FusedMMTalon extends MMTalon {
      * Corrects the motor's encoder offset based on the encoder
      */
     public void correctFusedOffset() {
+        System.out.println("Correcting with:");
+        System.out.println("Encoder POS: " + fusedEncodePos());
+        System.out.println("Final: " + fusedEncodePos() * gearing);
         super.setPosition(fusedEncodePos() * gearing);
     }
 
