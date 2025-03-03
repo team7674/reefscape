@@ -67,8 +67,8 @@ public class Limelight extends SubsystemBase {
     @Override
     public void periodic() {
 
-        Pose2d drivePos = drive.getPose2d();
-        this.limelightPos = new Pose2d(botpose_fieldspace[0], botpose_fieldspace[1], drivePos.getRotation());
+        // Pose2d drivePos = drive.getPose2d();
+        // this.limelightPos = new Pose2d(botpose_fieldspace[0], botpose_fieldspace[1], drivePos.getRotation());
 
         id = (int)limelightTable.getEntry("tid").getDouble(0.0); //grabs limelight ID
         targetpose_botspace = correctRobotSpaceAxis(limelightTable.getEntry("targetpose_robotspace").getDoubleArray(new double[6])); //grabs targetspace
@@ -94,7 +94,7 @@ public class Limelight extends SubsystemBase {
             smoothedPosition[i] = positionSmoother[i].getAverage(35);
         }
 
-        SmartDashboard.putNumber("realAngle", drivePos.getRotation().getDegrees());
+        //SmartDashboard.putNumber("realAngle", drivePos.getRotation().getDegrees());
     }
 
     public Pose2d getLimelightPose() {
