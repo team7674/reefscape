@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -69,11 +70,6 @@ public class RobotContainer {
 
     private final SwerveRequest.RobotCentric driveBot = new SwerveRequest.RobotCentric();
 
-    private final SendableChooser<Command> autoChooser = AutoBuilder.buildAutoChooser("Tests");
-
-    private final void testFunc() {
-    }
-
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverController = new CommandXboxController(0);
@@ -81,7 +77,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    Limelight limelight = new Limelight(drivetrain);
+    //Limelight limelight = new Limelight(drivetrain);
 
     public RobotContainer() {
         configureBindings();
@@ -92,22 +88,16 @@ public class RobotContainer {
         // and Y is defined as to the left according to WPILib convention.
 
         // FIXME: UNCOMMENT THIS WHEN WE ARE DONE DEBUGGING
-        /*
+        
         
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX(MathUtil.applyDeadband(joystick.getLeftY(), 0.15) * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(MathUtil.applyDeadband(joystick.getLeftX(), 0.15) * MaxSpeed) // Drive left with negative X (left)
-                  +
-                  
-                  
-                  
-                  .withRotationalRate(-MathUtil.applyDeadband(joystick.getRightX(), 0.15) * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
+                drive.withVelocityX(MathUtil.applyDeadband(driverController.getLeftY(), 0.15) * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(MathUtil.applyDeadband(driverController.getLeftX(), 0.15) * MaxSpeed) // Drive left with negative X (left)
+                  .withRotationalRate(-MathUtil.applyDeadband(driverController.getRightX(), 0.15) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                )
         );
-        
-        */
 
         driverController.leftBumper().onTrue(Commands.runOnce(() -> manualMode = true));
         driverController.leftBumper().onFalse(Commands.runOnce(() -> manualMode = false));
@@ -164,8 +154,8 @@ public class RobotContainer {
         driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         //resets odometry with button press
-        driverController.start().and(driverController.back()).whileTrue(Commands.runOnce(() -> 
-            drivetrain.addVisionMeasurement(limelight.getLimelightPose(), StaticUtil.getCurrentRioTimestamp())));
+        //driverController.start().and(driverController.back()).whileTrue(Commands.runOnce(() -> 
+        //    drivetrain.addVisionMeasurement(limelight.getLimelightPose(), StaticUtil.getCurrentRioTimestamp())));
 
         // reset the field-centric heading on left bumper press
         //driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
@@ -182,6 +172,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return Commands.print("No Such auto");
     }
 }
