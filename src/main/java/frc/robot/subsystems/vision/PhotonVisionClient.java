@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.util.VisionUtil;
 //import frc.robot.util.StaticUtil;
@@ -31,7 +32,10 @@ public class PhotonVisionClient implements VisionClient {
     private boolean hasTargets = false;
     private PhotonPipelineResult result = new PhotonPipelineResult();
     private PhotonCamera camera;
-    private Transform3d cameraToRobot;
+
+    //DEBUG STUFF
+    public double estimatedX;
+    public double estimatedY;
 
     public PhotonVisionClient(String key) {
         camera = new PhotonCamera(key);
@@ -43,28 +47,48 @@ public class PhotonVisionClient implements VisionClient {
         result = camera.getLatestResult();
 
         if(result.hasTargets()) {
+            System.out.println("We updating!!!");
+
             bestTarget = result.getBestTarget();
+
+            System.out.println(bestTarget.getFiducialId());
         }
     }
 
     //TODO: TEST FUNCTION
     public Pose2d estimateBotPose2d() { //gets pose2d of the bot based off of vision
 
-        Pose3d robotPose3d; //creates our pose3d to use
+        update();
 
-        if (layout.getTagPose(bestTarget.getFiducialId()).isPresent()) { //makes sure we have a tag
+        Pose2d robotPose;
 
-            robotPose3d = PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(),
-                layout.getTagPose(bestTarget.getFiducialId()).get(), cameraToRobot); //gets a bunch of things we need to estimate it
-        
-            } else { //TODO: make sure null won't break stuff
-                robotPose3d = null; //if no tag, just leave it null
+        if (bestTarget != null) { //makes sure we have a tag
+
+            //use try/catch in case things are null
+            try {
+
+                robotPose = PhotonUtils.estimateFieldToRobotAprilTag(bestTarget.getBestCameraToTarget(),
+                    layout.getTagPose(bestTarget.getFiducialId()).get(), VisionUtil.cameraToRobot).toPose2d(); //gets a bunch of things we need to estimate
+            
+            } catch (NoSuchElementException e) {
+                robotPose = null;
+                e.printStackTrace();
             }
+        
+        } else { //TODO: make sure null won't break stuff
+            robotPose = null; //if no tag, just leave it null
+        }
 
-        Pose2d robotPose = robotPose3d.toPose2d(); //slap the pose3d into the pose2d
+        try {
+            estimatedX = robotPose.getX();
+            estimatedY = robotPose.getY();
+            //System.out.println(robotPose.getX() + ", " + robotPose.getY());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
+
         return robotPose; //return it
     }
-
 
     /*
     

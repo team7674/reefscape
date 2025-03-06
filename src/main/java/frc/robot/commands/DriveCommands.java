@@ -5,12 +5,19 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.Vision;
 //import frc.robot.util.StaticUtil;
+
+public final class DriveCommands {
+    private DriveCommands() {} //makes class uninstantiable
+
+    
+}
 
 /*
 

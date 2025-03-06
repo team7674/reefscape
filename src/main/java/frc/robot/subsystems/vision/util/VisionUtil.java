@@ -3,15 +3,18 @@ package frc.robot.subsystems.vision.util;
 import java.util.List;
 
 
-import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+
 
 public final class VisionUtil {
 
     public static final double kCameraHeight = 0.85935;
     public static final double kCameraPitch = 0;
-    public static final Transform2d cameraToRobot = new Transform2d(0.0, 0.2286, Rotation2d.fromRadians(0.0));
+    public static final Transform3d cameraToRobot = new Transform3d(new Translation3d(0.0, 0.2286, 0.89535), new Rotation3d(0,0,0));
 
     private VisionUtil() {}
 

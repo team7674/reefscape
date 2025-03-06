@@ -32,6 +32,7 @@ import frc.robot.subsystems.appendage.ElevatorWinch;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.drive.Telemetry;
+import frc.robot.subsystems.vision.PhotonVisionClient;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.StaticUtil;
 
@@ -47,10 +48,10 @@ public class RobotContainer {
     private final Trigger manualTrigger = new Trigger(() -> manualMode);
 
     private Vision vision = new Vision("upper_camera");
+    private PhotonVisionClient photonVisionClient = new PhotonVisionClient("upper_camera");
 
     //private ElevatorWinch elevatorWinch = new ElevatorWinch();
     private Coral coral = new Coral();
-
     private Arm arm = new Arm();
 
     private final Trigger coralTrigger = new Trigger(() -> coral.containsCoral);
@@ -77,6 +78,10 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    SmartDashboard.putNumber("estimated x", robotPose.getX());
+    SmartDashboard.putNumber("estimated y", robotPose.getY());
+
+
     //Limelight limelight = new Limelight(drivetrain);
 
     public RobotContainer() {
@@ -85,10 +90,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-
-        // FIXME: UNCOMMENT THIS WHEN WE ARE DONE DEBUGGING
-        
+        // and Y is defined as to the left according to WPILib convention.        
         
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
@@ -111,18 +113,21 @@ public class RobotContainer {
                 arm.driveWristPositional(driverController.getRightX());
         }));
 
-        //driverController.b().onTrue(drivetrain.applyRequest(() -> brake));
-        //driverController.x().whileTrue(Commands.run(() -> arm.runTilt(driverController.getLeftX())));
-
         driverController.povDown().onTrue(ArmCommands.level1(arm));
         driverController.povLeft().onTrue(ArmCommands.level2(arm));
         driverController.povUp().onTrue(ArmCommands.level3(arm));
         driverController.povRight().onTrue(ArmCommands.level4(arm));
 
+        // FIXME: FINAL BUTTONS
+
+        /*
         driverController.a().onTrue(ArmCommands.travel(arm));
         driverController.b().onTrue(ArmCommands.algaeLevel1(arm));
         driverController.x().onTrue(ArmCommands.intakeCoral(arm, coral));
         driverController.y().onTrue(ArmCommands.algaeLevel2(arm));
+        */
+
+        driverController.a().whileTrue(Commands.run(() -> photonVisionClient.estimateBotPose2d()));
 
         //driverController.y().whileTrue(Commands.runEnd(() -> coral.output(), () -> coral.output()));
         //joystick.x().whileTrue(Commands.runOnce(() -> coral.intake()));
