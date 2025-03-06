@@ -78,10 +78,6 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    SmartDashboard.putNumber("estimated x", robotPose.getX());
-    SmartDashboard.putNumber("estimated y", robotPose.getY());
-
-
     //Limelight limelight = new Limelight(drivetrain);
 
     public RobotContainer() {
