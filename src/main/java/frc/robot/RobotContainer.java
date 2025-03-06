@@ -47,7 +47,7 @@ public class RobotContainer {
     private boolean manualMode = false;
     private final Trigger manualTrigger = new Trigger(() -> manualMode);
 
-    private Vision vision = new Vision("upper_camera");
+    private Vision vision = new Vision();
     private PhotonVisionClient photonVisionClient = new PhotonVisionClient("upper_camera");
 
     //private ElevatorWinch elevatorWinch = new ElevatorWinch();
@@ -78,8 +78,8 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    SmartDashboard.putNumber("estimated x", robotPose.getX());
-    SmartDashboard.putNumber("estimated y", robotPose.getY());
+    //SmartDashboard.putNumber("estimated x", robotPose.getX());
+    //SmartDashboard.putNumber("estimated y", robotPose.getY());
 
 
     //Limelight limelight = new Limelight(drivetrain);
@@ -127,7 +127,10 @@ public class RobotContainer {
         driverController.y().onTrue(ArmCommands.algaeLevel2(arm));
         */
 
-        driverController.a().whileTrue(Commands.run(() -> photonVisionClient.estimateBotPose2d()));
+        driverController.a().whileTrue(Commands.run(() -> {
+                drivetrain.addVisionMeasurement(photonVisionClient.estimateBotPose2d(), StaticUtil.getCurrentRioTimestamp());
+                System.out.println(drivetrain.getPose2d());
+            }));
 
         //driverController.y().whileTrue(Commands.runEnd(() -> coral.output(), () -> coral.output()));
         //joystick.x().whileTrue(Commands.runOnce(() -> coral.intake()));

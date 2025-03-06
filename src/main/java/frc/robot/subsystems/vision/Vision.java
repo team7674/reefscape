@@ -1,6 +1,8 @@
 package frc.robot.subsystems.vision;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Vector;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -9,11 +11,12 @@ import frc.robot.subsystems.vision.util.VisionUtil;
 
 public class Vision extends SubsystemBase {
 
-    PhotonVisionClient photon;
+    Vector<PhotonVisionClient> photons;
+
     Pose2d lastPose2d;
 
-    public Vision(String photonkey) {
-        photon = new PhotonVisionClient(photonkey);
+    public Vision() {
+        photons = new Vector<PhotonVisionClient>(10);
         lastPose2d = new Pose2d();
     }
 
@@ -22,8 +25,14 @@ public class Vision extends SubsystemBase {
         
     }
 
+    public void addPhotonCamera(String key) {
+        photons.addElement(new PhotonVisionClient(key));
+    }
+
     public void update() {
-        photon.update();
+        for (PhotonVisionClient photon : photons) {
+            photon.update();
+        }
     }
 
     /**

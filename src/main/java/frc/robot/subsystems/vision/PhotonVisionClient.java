@@ -19,12 +19,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.util.VisionUtil;
 //import frc.robot.util.StaticUtil;
 
 public class PhotonVisionClient implements VisionClient {
+    private Translation3d camToBot = new Translation3d();
 
     private AprilTagFieldLayout layout;
     private List<PhotonTrackedTarget> targets;
@@ -42,6 +44,10 @@ public class PhotonVisionClient implements VisionClient {
         layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     }
 
+    public void cameraToRobot(Translation3d translate) {
+        camToBot = translate;
+    }
+
     @Override
     public void update() {
         result = camera.getLatestResult();
@@ -51,14 +57,14 @@ public class PhotonVisionClient implements VisionClient {
 
             bestTarget = result.getBestTarget();
 
+            estimateBotPose2d();
+
             System.out.println(bestTarget.getFiducialId());
         }
     }
 
     //TODO: TEST FUNCTION
     public Pose2d estimateBotPose2d() { //gets pose2d of the bot based off of vision
-
-        update();
 
         Pose2d robotPose;
 
@@ -116,9 +122,4 @@ public class PhotonVisionClient implements VisionClient {
     }
 
     */
-        
-
-    public Rotation2d getYawToTag() {
-        return null;
-    }
 }
