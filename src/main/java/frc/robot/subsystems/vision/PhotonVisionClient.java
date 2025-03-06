@@ -2,26 +2,26 @@ package frc.robot.subsystems.vision;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+//import java.util.Optional;
 
-import org.photonvision.EstimatedRobotPose;
+//import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
+//import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
-import edu.wpi.first.apriltag.AprilTag;
+//import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
+//import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
+//import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
 import frc.robot.subsystems.vision.util.VisionUtil;
 //import frc.robot.util.StaticUtil;
 
@@ -38,6 +38,7 @@ public class PhotonVisionClient implements VisionClient {
     //DEBUG STUFF
     public double estimatedX;
     public double estimatedY;
+    public double estimatedYaw;
 
     public PhotonVisionClient(String key) {
         camera = new PhotonCamera(key);
@@ -50,16 +51,23 @@ public class PhotonVisionClient implements VisionClient {
 
     @Override
     public void update() {
+
         result = camera.getLatestResult();
 
         if(result.hasTargets()) {
-            System.out.println("We updating!!!");
 
             bestTarget = result.getBestTarget();
 
             estimateBotPose2d();
 
-            System.out.println(bestTarget.getFiducialId());
+            estimateBotPose2d();
+
+            SmartDashboard.putNumber("Estimated X", estimatedX);
+            SmartDashboard.putNumber("Estimated Y", estimatedY);
+            SmartDashboard.putNumber("Estimated Yaw", estimatedYaw);
+            SmartDashboard.putNumber("Tag ID", (int) bestTarget.getFiducialId());
+            SmartDashboard.updateValues();
+
         }
     }
 
@@ -88,7 +96,9 @@ public class PhotonVisionClient implements VisionClient {
         try {
             estimatedX = robotPose.getX();
             estimatedY = robotPose.getY();
+            estimatedYaw = robotPose.getRotation().getDegrees();
             //System.out.println(robotPose.getX() + ", " + robotPose.getY());
+
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -122,4 +132,9 @@ public class PhotonVisionClient implements VisionClient {
     }
 
     */
+        
+
+    public Rotation2d getYawToTag() {
+        return null;
+    }
 }

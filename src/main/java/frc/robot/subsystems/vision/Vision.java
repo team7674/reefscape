@@ -22,7 +22,7 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void periodic() {
-        
+        update();
     }
 
     public void addPhotonCamera(String key) {
