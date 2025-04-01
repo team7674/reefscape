@@ -1,94 +1,108 @@
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-
-import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
-import frc.robot.subsystems.vision.Vision;
-//import frc.robot.util.StaticUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.Limelight;
+import frc.robot.util.MovingAverage;
 
 public final class DriveCommands {
+
+    static double driveXP = 2;
+    static double driveYP = 2;
+    static double rotateP = 2;
+
+    static double driveXI = 0;
+    static double driveYI = 0;
+    static double rotateI = 0;
+
+    static double driveXD = 0;
+    static double driveYD = 0;
+    static double rotateD = 0;
+
+    static final double period = 0.2;
+
+    static double forwardTarget = 1;
+    static double rightTarget = 0;
+
     private DriveCommands() {} //makes class uninstantiable
 
+    public static PIDController rotationPID = new PIDController(rotateP, rotateI, rotateD, period);
+    public static PIDController forwardPID = new PIDController(driveXP, driveXI, driveXD, period);
+    public static PIDController rightPID = new PIDController(driveYP, driveYI, driveYD, period);
+
+    static Limelight limelight = new Limelight(RobotContainer.drivetrain);
     
+    static MovingAverage tagYawSmoother = new MovingAverage(50);
+    static MovingAverage xSmoother = new MovingAverage(20);
+    static MovingAverage ySmoother = new MovingAverage(20);
+    
+    /* gets some important variables that we need */
+    
+    public static double forwardError() {
+        return forwardTarget - Math.abs(limelight.getBotPos_TagSpace().getZ());
+    }
+
+    public static double rightError() {
+        return rightTarget - limelight.getBotPos_TagSpace().getX();
+    }
+
+    public static double rotationError() { // we could have the option for a target but it will always be 0 degrees from the tag with how we use it so we will just condense 0 - botposetagspace
+        return -limelight.getBotPos_TagSpace().getRotation().getZ() * 2 * Math.PI;
+    }
+
+    // Updates PIDs after errors are set up
+    public static void updatePIDs() {
+        rotationPID.calculate(rotationError());
+        forwardPID.calculate(forwardError());
+        rightPID.calculate(rightError());
+    }
+
+    // gets individual pid outputs for easier usage
+    public static double forwardPIDoutput() {
+        System.out.println(forwardPID.calculate(forwardError()));
+        return forwardPID.calculate(forwardError());
+    }
+
+    public static double rightPIDoutput() {
+        System.out.println(rightPID.calculate(rightError()));
+        return rightPID.calculate(rightError());
+    }
+
+    public static double rotationPIDoutput() {
+        System.out.println(rotationPID.calculate(rotationError()));
+        return rotationPID.calculate(rotationError());
+    }
+
+    public static void printNumbers() {
+
+        updatePIDs();
+
+        SmartDashboard.putNumber("forward robot position: ", limelight.getBotPos_TagSpace().getZ());
+        SmartDashboard.putNumber("right robot position: ", limelight.getBotPos_TagSpace().getX());
+        SmartDashboard.putNumber("rotate robot position", limelight.getBotPos_TagSpace().getRotation().getZ() * 2 * Math.PI);
+
+        SmartDashboard.putNumber("forward error: ", forwardError());
+        SmartDashboard.putNumber("right error: ", rightError());
+        SmartDashboard.putNumber("rotation error: ", rotationError());
+
+        SmartDashboard.putNumber("forward PID output: ", forwardPIDoutput());
+        SmartDashboard.putNumber("right PID output: ", rightPIDoutput());
+        SmartDashboard.putNumber("rotate PID output: ", rotationPIDoutput());
+
+        SmartDashboard.updateValues();
+    }
+
+    /*
+
+    public static void resetPIDs() {
+        rotationPID.reset();
+        rotationPID.setPID(rotateP, rotateI, rotateD);
+        xPID.reset();
+        yPID.reset();
+        tagYawSmoother.reset();
+        xSmoother.reset();
+        ySmoother.reset();
+    }
+    */
 }
-
-/*
-
-// Make class inextendable
-public final class DriveCommands {
-
-    static double targetAngle;
-
-    // Make class uninstantiable
-    private DriveCommands() {}
-
-    private static final double THROTTLE_GOV = 2;
-
-    public static Command alignToAngle(double angle, CommandSwerveDrivetrain drive) {
-
-        Rotation2d target = Rotation2d.fromDegrees(angle); //converts our double angle to a rotation2d
-
-        return Commands.run(() -> {
-            drive.applyRequest(() -> new SwerveRequest.FieldCentricFacingAngle().withTargetDirection(target));
-            System.out.println("working? " + target);
-        }, drive);
-        //return //slaps the target into a swerverequest
-    }
-
-    public static Command alignToTag(
-        int ID,
-        CommandSwerveDrivetrain drive,
-        Vision vision
-    ) {
-        return Commands.run(
-            () -> {
-                //Pose2d pose = vision.getPose2d(drive);
-
-                /*
-                try { //may have a bad tagpose or no tagpose, this will grab either the valid tag or the last tag that exists on the field
-                    Pose3d tagPose3d = StaticUtil.getTagFieldLayoutAM().getTags().get(ID).pose; //grabs list of tags, pulls the ID we have, then gets its pose3d
-                } catch (NullPointerException e) { //handles exception
-                    List<AprilTag> tags = StaticUtil.getTagFieldLayoutAM().getTags(); //grabs all the tags
-                    Pose3d tagPose3d = tags.get(tags.size()-1).pose; //sets heading of specifically the last tag, aka list size minus 1, aka 22 (this could just be the number 22 but doing it like this makes it work for different list sizes)
-                    System.out.println(e); //prints error
-                }
-
-                
-
-                Rotation2d somepointBS = Rotation2d.fromDegrees(90);
-
-                SwerveRequest.FieldCentricFacingAngle req = new SwerveRequest.FieldCentricFacingAngle()
-                .withTargetDirection(somepointBS);
-
-                System.out.println("we're trying to do something");
-
-                req.HeadingController.setPID(0.8, 0.0025, 0.0);
-
-                //Commands.run(drive.applyRequest(() -> req), drive);
-            }, 
-            drive, vision);
-    }
-
-    public static Command drive(
-        DoubleSupplier forwardSupplier, 
-        DoubleSupplier strafeSupplier, 
-        DoubleSupplier rotSupplier,
-        DoubleSupplier throttleSupplier,
-        CommandSwerveDrivetrain drive
-    ) {
-        return Commands.run(() -> {
-            drive.applyRequest(() -> new SwerveRequest.FieldCentric()
-                    .withVelocityX(strafeSupplier.getAsDouble() * (throttleSupplier.getAsDouble() * THROTTLE_GOV))
-                    .withVelocityY(forwardSupplier.getAsDouble() * (throttleSupplier.getAsDouble() * THROTTLE_GOV))
-                    .withRotationalRate(rotSupplier.getAsDouble() * StaticUtil.MaxAngularRate));
-        }, drive);
-    }
-}
-*/

@@ -44,7 +44,7 @@ public class MMTalon extends TalonFX {
         
 
         cfg.MotionMagic
-            .withMotionMagicCruiseVelocity(RotationsPerSecond.of(60))
+            .withMotionMagicCruiseVelocity(RotationsPerSecond.of(80)) //was 60
             .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(120))
             .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(1200));
 
@@ -157,6 +157,41 @@ public class MMTalon extends TalonFX {
         cfg.Slot0.kA = kA;
         cfg.Slot0.GravityType = grav;
         super.getConfigurator().apply(cfg.Slot0);
+    }
+
+    public void setMotionMagicConfiguration(MotionMagicConfigs cfg) {
+        super.getConfigurator().apply(cfg);
+    }
+
+    public void setMotionMagicCruise(double cruise) {
+        MotionMagicConfigs cfg;
+        
+        cfg = this.cfg.MotionMagic;
+        cfg.MotionMagicCruiseVelocity = cruise;
+        super.getConfigurator().apply(cfg);
+    }
+
+    public void setMotionMagicAccel(double accel) {
+        MotionMagicConfigs cfg;
+    
+        cfg = this.cfg.MotionMagic;
+        cfg.MotionMagicAcceleration = accel;
+        super.getConfigurator().apply(cfg);
+    }
+    
+    public void setMotionMagicJerk(double jerk) {
+        MotionMagicConfigs cfg;
+    
+        cfg = this.cfg.MotionMagic;
+        cfg.MotionMagicJerk = jerk;
+        super.getConfigurator().apply(cfg);
+    }
+
+    public void setGravityMode(GravityTypeValue grav) {
+        Slot0Configs cfg = this.cfg.Slot0;
+
+        cfg.GravityType = grav;
+        super.getConfigurator().apply(cfg);
     }
 
     // -=====================-

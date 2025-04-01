@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 //import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
@@ -34,12 +35,15 @@ public class Arm extends SubsystemBase {
     MMTalon tiltMotor = new MMTalon(17, "rio");
 
     LimitSwitch tiltSwitch = new LimitSwitch(0);
+    LimitSwitch winchSwitch = new LimitSwitch(2);
     
     CANcoder wristEncoder = new CANcoder(19, "rio");
     FusedMMTalon wristMotor = new FusedMMTalon(21, "rio", wristEncoder);
 
     CANcoder armEncoder = new CANcoder(18, "rio");
     FusedMMTalon armMotor = new FusedMMTalon(16, "rio", armEncoder);
+
+    MMTalon climbMotor = new MMTalon(0, "");
 
     TalonFX algaeIn = new TalonFX(22, "rio");
     private TalonFXConfiguration algaeConfigIn = new TalonFXConfiguration();
@@ -50,12 +54,23 @@ public class Arm extends SubsystemBase {
             winchMotor.setEncoderToZero();
             winchMotor.setNeutralMode(NeutralModeValue.Brake);
             winchMotor.setPID(30, 0, 0);
+            //winchMotor.setMotionMagicCruise(200);
+            //winchMotor.setMotionMagicAccel(400);
+            //winchMotor.setMotionMagicJerk(1800);
     
             tiltMotor.setPID(10, 0, 0);
             tiltMotor.setNeutralMode(NeutralModeValue.Brake);
     
             armMotor.setMotorToZero();
-            armMotor.setPID(10, 0, 0);
+            armMotor.setPIDPedantic(
+                10, 
+                0, 
+                0, 
+                0,
+                0,
+                1.2, 
+                0, 
+                GravityTypeValue.Arm_Cosine);
             armMotor.setGearing(110.76923077);
             armMotor.setDirection(SensorDirectionValue.Clockwise_Positive);
             armMotor.setMagnetOffset(0.12036160938);
@@ -74,7 +89,7 @@ public class Arm extends SubsystemBase {
             algaeConfigIn.CurrentLimits.StatorCurrentLimit = 13;
             algaeConfigIn.CurrentLimits.StatorCurrentLimitEnable = true;
                        
-            algaeConfigOut.CurrentLimits.StatorCurrentLimit = 80;
+            algaeConfigOut.CurrentLimits.StatorCurrentLimit = 120;
             algaeConfigOut.CurrentLimits.StatorCurrentLimitEnable = true;
     
             algaeIn.getConfigurator().apply(algaeConfigIn);
@@ -101,7 +116,7 @@ public class Arm extends SubsystemBase {
                 }
             }
     
-            if (intaking && !hasAlgae) {
+            if (intaking) {
                 algaeIn.set(1);
             }
     
@@ -124,6 +139,8 @@ public class Arm extends SubsystemBase {
                     ready = true;
                 }
             }
+
+            
         }
         
         /**
@@ -140,8 +157,8 @@ public class Arm extends SubsystemBase {
 
         public void driveArmPositional(double speed) {
             armMotor.runToPos(StaticUtil.clamp(
-                armMotor.fusedEncodePos() + (speed * 0.03),
-                (0.00 / 360.00), (-100.00 / 360.00))
+                armMotor.fusedEncodePos() + (speed * 0.06),
+                (0.00 / 360.00), (-180.00 / 360.00))
             );
         }
 
@@ -157,6 +174,11 @@ public class Arm extends SubsystemBase {
                 wristMotor.fusedEncodePos() + (speed * 0.03),
                 (180.00 / 360), (-35.00 / 360.00))
             );
+        }
+
+        public boolean isLiftAtZero() {
+            System.out.println("Or iS iT");
+            return winchSwitch.get();
         }
     
         public void runTilt(double speed) {
@@ -214,7 +236,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void runWristTo(double at) {
-        System.out.println("arm.runWristTo(" + at + ")");
+        //System.out.println("arm.runWristTo(" + at + ")");
         wristMotor.runToPos(StaticUtil.clamp(at , (100 / 360.00), (-20 / 360.00)));
     }
 
@@ -232,6 +254,13 @@ public class Arm extends SubsystemBase {
     }
 
     public void zeroWrist() {
+
+        System.out.println("zeroWrist here!");
+
+        for (int i = 0; i < 5; i++) {
+            System.out.println("For loop here!");
+        }
+        
         var pos = wristEncoder.getPosition().getValueAsDouble();
         var finTgt = pos * 196.36363636363636;
         System.out.println(finTgt);

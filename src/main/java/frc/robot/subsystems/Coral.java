@@ -71,6 +71,6 @@ public class Coral extends SubsystemBase {
     }
 
     public void openDoor() {
-        flapperServo.set(.25);
+        flapperServo.set(.4);
     }
 }

@@ -1,10 +1,12 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.LimelightHelpers;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.subsystems.drive.CommandSwerveDrivetrain;
@@ -13,7 +15,8 @@ import frc.robot.util.MovingAverage;
 public class Limelight extends SubsystemBase {
 
     //initialize everything
-    Pose2d limelightPos;
+
+    LimelightHelpers helper = new LimelightHelpers();
 
     private NetworkTable limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
 
@@ -35,6 +38,10 @@ public class Limelight extends SubsystemBase {
             positionSmoother[i] = new MovingAverage(50);
         }
     }
+
+    public void init() {
+        
+    }
     
     //this will correct the robot space axis to match gyro
     public static double[] correctRobotSpaceAxis(double[] input) {
@@ -52,28 +59,30 @@ public class Limelight extends SubsystemBase {
         return targetpose_botspace;
     }
 
-    public double[] getBotPos_TagSpace() {
-        return botpose_targetspace;
+    public Pose3d getBotPos_TagSpace() {
+
+        return LimelightHelpers.getBotPose3d_TargetSpace("limelight");
     }
     
     public double[] getBotPos() {
+        //Pose3d botPose3d = LimelightHelpers.getBotPose3d("limelight-belly");
+
         return botpose_fieldspace;
     }
     
     public int getID() {
+        System.out.print(id);
         return id;
     }
 
     @Override
     public void periodic() {
 
-        // Pose2d drivePos = drive.getPose2d();
-        // this.limelightPos = new Pose2d(botpose_fieldspace[0], botpose_fieldspace[1], drivePos.getRotation());
-
         id = (int)limelightTable.getEntry("tid").getDouble(0.0); //grabs limelight ID
         targetpose_botspace = correctRobotSpaceAxis(limelightTable.getEntry("targetpose_robotspace").getDoubleArray(new double[6])); //grabs targetspace
         botpose_targetspace = limelightTable.getEntry("botpose_targetspace").getDoubleArray(new double[6]); //grabs currentspace
-        var alliance = DriverStation.getAlliance(); //grabs team side
+
+        var alliance = DriverStation.getAlliance(); //grabs team side-
 
         if (alliance.isPresent()){ //finds out if we are even fielding around or not
             if (alliance.get() == DriverStation.Alliance.Red){
@@ -87,17 +96,31 @@ public class Limelight extends SubsystemBase {
 
         tx = limelightTable.getEntry("tx").getDouble(0.0); //grabs x coord of the tag
 
-        for (int i = 0; i < 6; i++){ //updates position smoother
+        for (int i = 0; i < 6; i++) { //updates position smoother
             if (id > -1) {
                 positionSmoother[i].update(botpose_fieldspace[i]);
             }
             smoothedPosition[i] = positionSmoother[i].getAverage(35);
         }
-
         //SmartDashboard.putNumber("realAngle", drivePos.getRotation().getDegrees());
+
+        /*
+        SmartDashboard.putNumber("TREVOR: drive x", botpose_targetspace[0]);
+        SmartDashboard.putNumber("TREVOR: drive y", botpose_targetspace[1]);
+        SmartDashboard.putNumber("TREVOR: drive z", botpose_targetspace[2]);
+
+        SmartDashboard.putNumber("LIMELIGHT: drive x",
+            LimelightHelpers.getBotPose3d_TargetSpace("limelight").getX());
+        SmartDashboard.putNumber("LIMELIGHT: drive y",
+            LimelightHelpers.getBotPose3d_TargetSpace("limelight").getY());
+        SmartDashboard.putNumber("LIMELIGHT: drive yaw",
+            LimelightHelpers.getBotPose3d_TargetSpace("limelight").getRotation().getZ() * 2 * Math.PI);
+
+        SmartDashboard.updateValues();
+        */
     }
 
-    public Pose2d getLimelightPose() {
-        return limelightPos;
-    }
+    //public Pose2d getLimelightPose() {
+    //    return limelightPos;
+    //}
 }
